@@ -9,10 +9,12 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify, render_template, request
+from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
 
 FETCH_TIMEOUT_SECONDS = 8
+MAX_REDIRECTS = 5
 USER_AGENT = "Mozilla/5.0 (compatible; PagePulseBot/1.0; +https://digitalheroesco.com)"
 
 
@@ -74,7 +76,9 @@ def audit():
     started = time.time()
 
     try:
-        response = requests.get(
+        session = requests.Session()
+        session.max_redirects = MAX_REDIRECTS
+        response = session.get(
             url,
             timeout=FETCH_TIMEOUT_SECONDS,
             headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/xhtml+xml"},
@@ -140,6 +144,10 @@ def audit():
 
 @app.errorhandler(Exception)
 def handle_unexpected_error(err):
+    # Let normal HTTP errors (404, 405, etc.) pass through as-is —
+    # only catch genuinely unexpected server-side failures.
+    if isinstance(err, HTTPException):
+        return err
     app.logger.exception("Unhandled error")
     return jsonify({
         "error": "internal_error",
