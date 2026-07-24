@@ -4,8 +4,8 @@ A small full-stack tool that audits any URL: HTTP status, response time, page
 title, meta description, H1 count, images missing `alt` text, and approximate
 word count.
 
-**Live demo:** _add your deployed URL here_
-**Repo:** _add your GitHub URL here_
+Live demo: https://page-pulse-1.onrender.com/
+Repo: https://github.com/hudakhan0786/page-pulse
 
 ## Stack
 
